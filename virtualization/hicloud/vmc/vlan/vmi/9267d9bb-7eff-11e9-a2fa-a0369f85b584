@@ -1,0 +1,6 @@
+[vlan]
+9267d9bb-7eff-11e9-a2fa-a0369f85b584 = [u'0']
+
+[tap]
+9267d9bb-7eff-11e9-a2fa-a0369f85b584 = tap2
+

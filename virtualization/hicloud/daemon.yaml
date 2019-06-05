@@ -1,0 +1,7 @@
+log_level_name: debug
+log_max_size: 10
+backup_count: 50
+log_file: /tmp/cmdmain.log
+listen_address: 172.20.0.235
+listen_port: 8080
+capabilities: ['vmc'] 

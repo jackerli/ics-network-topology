@@ -1,0 +1,35 @@
+<?xml version="1.0" ?><domain type="kvm">
+<name>ubuntu-16-Desktop-AD-1420603c-673e-11e9-a2fa-a0369f85b584</name>
+<uuid>1420603c-673e-11e9-a2fa-a0369f85b584</uuid>
+<os>
+        <type>hvm</type>
+        <boot dev="hd"/>
+        <bootmenu enable="yes"/>
+</os>
+<features><pae/><acpi/><apic/></features>
+<on_poweroff>destroy</on_poweroff>
+<on_reboot>restart</on_reboot>
+<on_crash>destroy</on_crash>
+<clock offset="utc"/>
+<memory>2097152</memory>
+<currentMemory>2097152</currentMemory>
+<vcpu>1</vcpu>
+<bootScript>
+</bootScript>
+<shutdownScript>
+</shutdownScript>
+<devices>
+<input bus="usb" type="tablet"/>
+<disk device="disk" type="file">
+        <driver name="qemu" type="qcow2"/>
+        <source file="/vmc160/1420603c-673e-11e9-a2fa-a0369f85b584.img"/>
+        <target bus="virtio" dev="vda"/>
+</disk>
+<graphics listen="0.0.0.0" port="-1" type="vnc"/>
+<interface type="ethernet">
+    <mac address="52:54:00:dc:e3:f1"/>
+    <target dev="tap1"/>
+    <model type="virtio"/>
+</interface>
+</devices>
+</domain>

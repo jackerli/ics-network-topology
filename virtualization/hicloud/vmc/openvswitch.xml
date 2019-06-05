@@ -1,0 +1,43 @@
+<?xml version="1.0" ?><domain type="kvm">
+<name>0810-test1</name>
+<uuid>107b03a6-5d99-11e6-9477-000c29bf8d39</uuid>
+<os>
+    <type>hvm</type>
+    <boot dev="hd"/>
+    <boot dev="cdrom"/>
+    <bootmenu enable="yes"/>
+</os>
+<features><pae/><acpi/><apic/></features>
+<on_poweroff>destroy</on_poweroff>
+<on_reboot>restart</on_reboot>
+<on_crash>destroy</on_crash>
+<clock offset="utc"/>
+<memory>262144</memory>
+<currentMemory>262144</currentMemory>
+<vcpu>1</vcpu>
+<bootScript>
+</bootScript>
+<shutdownScript>
+</shutdownScript>
+<devices>
+<input bus="usb" type="tablet"/>
+<disk device="cdrom" type="file">
+    <source file="/tmp/adtp-master/hicloud/vmc/nfsmount/172.20.0.235/iso/ubuntu16.iso"/>
+    <target bus="ide" dev="hdc"/>
+    <readonly/>
+</disk>
+<disk device="disk" type="file">
+    <driver name="qemu" type="qcow2"/>
+    <source file="/tmp/adtp-master/hicloud/rootDir/localRoot/cow/107b03a6-5d99-11e6-9477-000c29bf8d39.img"/>
+    <target bus="ide" dev="hda"/>
+</disk>
+<emulator>/usr/bin/kvm</emulator>
+<graphics listen="0.0.0.0" port="-1" type="vnc"/>
+<interface type="ethernet">
+    <mac address="52:54:00:dc:f4:c9"/>
+    <target dev="tap107b03a65d99"/>
+    <model type="rtl8139"/>
+    <script path="no"/>
+</interface>
+</devices>
+</domain>

@@ -1,0 +1,30 @@
+def __vmi_migrate_taskids(self, job):
+    tasks = []
+    vmcs = self.__get_vmi_migrate_vmcs(job)
+    dst_vmc = vmcs['dst_vmc']
+
+    task_deployVMInfo = self.__new_task(job)
+    task_deployVMInfo.title = 'deploy info of vmi %d' % (job.obj.id)
+    task_deployVMInfo.description = task_deployVMInfo.title
+    content = {}
+    content['url'] = get_vmc_url(dst_vmc.address, dst_vmc.port)
+    content['op_job'] = 'deploy'
+    content['op_name'] = 'deploySVMInfo'
+    content['op_args'] = [job.obj.uuid, job.obj.settings]
+    content['op_obj'] = InstanceGetter.to_key(job.obj)
+    task_deploySVMInfo.content = repr(content)
+    self.s.flush()
+    last_task_id = task_deploySVMInfo.id
+    task.append(task_deploySVMInfo.id)
+    
+    job.optype = 'migrate'
+    task_migrateVM = self.__new_task(job)
+    task_migrateVM.description = task_migrateSVM.title
+    task_migrateVM.depend_task_id = last_task_id
+    task_migrateVM.content = self.__generate_vmi_task_content(job.obj, job)
+    task_migrateVM.title = job.title
+    task_migrateVM.status = "waiting"
+    self.s.flush()
+
+    return tasks
+    

@@ -1,0 +1,1 @@
+{'52163f6c-747f-11e9-a2fa-a0369f85b584': {'os_version': u'16', 'os_type': u'ubuntu', 'interfaces': {u'52:54:00:dc:e3:f1': u'0.0.0.0'}, 'iso_path': u'/vmc160/backups.iso'}}

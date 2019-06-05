@@ -1,0 +1,3 @@
+connect_string: 'mysql://debian-sys-maint:jAYKfnrf0JjY4Zz8@localhost/hicloud_db'
+thread_num: 1
+debug_soap: True

@@ -1,0 +1,6 @@
+[vlan]
+dade200a-7efa-11e9-a2fa-a0369f85b584 = [u'0']
+
+[tap]
+dade200a-7efa-11e9-a2fa-a0369f85b584 = tap1
+

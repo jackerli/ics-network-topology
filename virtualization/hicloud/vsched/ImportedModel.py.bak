@@ -1,0 +1,485 @@
+# -*- coding: utf-8 -*-
+
+from datetime import datetime
+
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+Base = declarative_base()
+
+
+class Ca(Base):
+    __tablename__ = 'cas'
+
+    id = Column(Integer, primary_key=True)
+    hashcode = Column(String(255))
+    location = Column(String(255))
+    dn = Column(String(255))
+    valid_from = Column(DateTime)
+    valid_to = Column(DateTime)
+
+
+class Cert(Base):
+    __tablename__ = 'certs'
+
+    id = Column(Integer, primary_key=True)
+    dn = Column(String(255))
+    ca_id = Column(Integer, ForeignKey('cas.id'))
+    public_key = Column(Text)
+    private_key = Column(Text)
+
+
+class Community(Base):
+    __tablename__ = 'communities'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255))
+    description = Column(String(255))
+    ca_id = Column(Integer, ForeignKey('cas.id'))
+    owner_id = Column(Integer)
+    admin_role_id = Column(Integer)
+    user_role_id = Column(Integer)
+
+
+class Datacenter(Base):
+    __tablename__ = 'data_centers'
+
+    id = Column(Integer, primary_key=True)
+    uuid = Column(String(255))
+    name = Column(String(255))
+    status = Column(String(255))
+    cluster_cnt = Column(Integer)
+    host_cnt = Column(Integer)
+    vm_cnt = Column(Integer)
+    vmtemp_cnt = Column(Integer)
+    vcluster_cnt = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    config_id = Column(Integer)
+    group_id = Column(Integer)
+    ippool_id = Column(Integer, ForeignKey('ip_pools.id'))
+    cluster_uuids = Column(Text)
+    reserved = Column(String(255))
+
+
+class Job(Base):
+    __tablename__ = 'jobs'
+
+    id = Column(Integer, primary_key=True)
+    uuid = Column(String(255))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    title = Column(String(255))
+    description = Column(String(255))
+    job_type = Column(String(255))
+    content = Column(Text)
+    status = Column(String(255))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    job_info = Column(Text)
+    vm_id = Column(Integer)
+    ref_obj_name = Column(String(255))
+    ref_obj_id = Column(Integer)
+    ref_obj_type = Column(Integer)
+    host_id = Column(Integer)
+
+
+class ResourcePool(Base):
+    __tablename__ = 'resource_pools'
+
+    id = Column(Integer, primary_key=True)
+    uuid = Column(String(255))
+    name = Column(String(255))
+    description = Column(String(255))
+    owner_id = Column(Integer)
+    group_id = Column(Integer)
+    cluster_id = Column(Integer)
+    vmc_ids = Column(Text)
+    vmc_id = Column(Integer, ForeignKey('users.id'))
+    cpu_total_capacity = Column(Integer)
+    cpu_keep_capacity = Column(Integer)
+    memory_share = Column(Integer)
+    memory_keep_capacity = Column(Integer)
+    memory_total_capacity = Column(Integer)
+    cpu_share = Column(Integer)
+    priority = Column(Integer)
+    vm_cnt = Column(Integer)
+    vm_uuids = Column(Text)
+    config_id = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    reserved = Column(String(255))
+
+
+class Role(Base):
+    __tablename__ = 'roles'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255))
+
+
+class Session(Base):
+    __tablename__ = 'sessions'
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(String(255))
+    data = Column(Text)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+# 子任务模型
+class Task(Base):
+    __tablename__ = 'tasks'
+
+    id = Column(Integer, primary_key=True)
+    uuid = Column(String(255))
+    job_id = Column(Integer, ForeignKey('jobs.id'))
+    title = Column(String(255))
+    description = Column(String(255))
+    task_type = Column(String(255))
+    content = Column(Text)
+    status = Column(String(255))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    depend_task_id = Column(Integer)
+    task_info = Column(Text)
+
+
+# 系统用户模型
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255))
+    password = Column(String(255))
+    cert_id = Column(Integer, ForeignKey('certs.id'))
+
+
+# 集群
+class VirtualClusterInstance(Base):
+    __tablename__ = 'virtual_cluster_instances'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255))
+    description = Column(String(255))
+    #vcluster_temp_id = Column(Integer, ForeignKey('vcluster_temps.id'))
+    vcluster_temp_id = Column(Integer)
+    admin_role_id = Column(Integer)
+    user_role_id = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    status = Column(String(255))
+    deployment = Column(Boolean)
+    uuid = Column(String(255))
+    worknode_count = Column(Integer)
+    job_id = Column(Integer, ForeignKey('jobs.id'))
+
+
+# 主机模型
+class VirtualMachineContainer(Base):
+    __tablename__ = 'virtual_machine_containers'
+
+    id = Column(Integer, primary_key=True)
+    hostname = Column(String(255))
+    uuid = Column(String(255))
+    address = Column(String(255))
+    port = Column(Integer)
+    status = Column(String(255))
+    owner_id = Column(Integer)
+    group_id = Column(Integer)
+    cluster_id = Column(Integer)
+    running_time = Column(Integer)
+    cpu_type = Column(String(255))
+    cpu_num = Column(String(255))
+    cpu_usage = Column(String(255))
+    mem_total = Column(String(255))
+    mem_free = Column(String(255))
+    disk_device = Column(String(255))
+    disk_total = Column(String(255))
+    disk_free = Column(String(255))
+    nics_num = Column(Integer)
+    net_ifname = Column(String(255))
+    net_tx = Column(String(255))
+    net_rx = Column(String(255))
+    vm_name = Column(String(255))
+    vm_state = Column(String(255))
+    vcpu_usage = Column(String(255))
+    vmem_total = Column(String(255))
+    vmem_free = Column(String(255))
+    vdisk_read = Column(String(255))
+    vdisk_write = Column(String(255))
+    vif_tx = Column(String(255))
+    vif_rx = Column(String(255))
+    field_metadata = Column('metadata', String(255))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    vm_uuid = Column(Text)
+    capability = Column(String(255))
+    vdisk_names = Column(String(255))
+    vif_names = Column(String(255))
+    all_pair_ping = Column(Text)
+    vnc_port = Column(String(255))
+    vm_cnt = Column(Integer)
+    respool_cnt = Column(String(255))
+    reserved = Column(String(255))
+    host_desc = Column(Text)
+    host_vendor_name = Column(String(255))
+    host_type = Column(String(255))
+    oper_system_vendor_name = Column(String(255))
+    oper_system_name = Column(String(255))
+    uuid_bios = Column(String(255))
+    dns = Column(String(255))
+    cpu_core_num = Column(String(255))
+    cpu_thread_num = Column(String(255))
+    diskarray_num = Column(String(255))
+    datacenter_id = Column(Integer, ForeignKey('data_centers.id'))
+    user_name = Column(String(255))
+    password = Column(String(255))
+    status_flag = Column(Integer)
+    hardware_id = Column(String(16))
+
+
+# 虚拟机模型
+class VirtualMachineInstance(Base):
+    __tablename__ = 'virtual_machine_instances'
+
+    id = Column(Integer, primary_key=True)
+    uuid = Column(String(255))
+    hostname = Column(String(255))
+    vm_temp_id = Column(Integer, ForeignKey('vm_temps.id'))
+    virtual_machine_container_id = Column(Integer, ForeignKey('virtual_machine_containers.id'))
+    status = Column(String(255))
+    virtual_cluster_instance_id = Column(Integer, ForeignKey('virtual_cluster_instances.id'))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    cpu_usage = Column(String(255))
+    mem_total = Column(String(255))
+    mem_free = Column(String(255))
+    disk_total = Column(String(255))
+    disk_free = Column(String(255))
+    disk_read = Column(String(255))
+    disk_write = Column(String(255))
+    vif_tx = Column(String(255))
+    vif_rx = Column(String(255))
+    vnc_port = Column(String(255))
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    settings = Column(Text)
+    target_vmc_id = Column(Integer, ForeignKey('virtual_machine_containers.id'))
+    mig_info = Column(String(255))
+    node_index = Column(Integer)
+    job_id = Column(Integer, ForeignKey('jobs.id'))
+    capture_nics = Column(String(255))
+    capture_expr = Column(String(255))
+    capabilities = Column(String(255))
+    ip = Column(Text)
+    runtime1 = Column(Integer)
+    runtime2 = Column(Integer)
+    vdisk_names = Column(String(255))
+    vif_names = Column(String(255))
+    cpu_cnt = Column(Integer)
+    memory_keep_capacity = Column(Integer)
+    cpu_total_capacity = Column(Integer)
+    net_adapter_num = Column(Integer)
+    enable_snapshot = Column(String(255))
+    power_state = Column(String(255))
+    temp_file_name = Column(String(255))
+    temp_file_path = Column(String(255))
+    storeid = Column(String(255))
+    store_name = Column(String(255))
+    store_type = Column(String(255))
+    vhost_name = Column(String(255))
+    vhost_desc = Column(String(255))
+    file_name = Column(String(255))
+    uuid_bios = Column(String(255))
+    oper_system_vendor_name = Column(String(255))
+    oper_system_name = Column(String(255))
+    network_ids = Column(Text)
+    respool_id = Column(Integer)
+    cluster_id = Column(Integer)
+    dns = Column(String(255))
+    nic_cnt = Column(Integer)
+    description = Column(String(255))
+    owner_id = Column(Integer)
+    group_id = Column(Integer)
+    current_snapshot = Column(Integer)
+    snapshot_id = Column(Integer)
+    reserved = Column(String(255))
+    storage_id = Column(Integer)
+
+
+# 虚拟机模板文件模型
+class VmTemp(Base):
+    __tablename__ = 'vm_temps'
+
+    id = Column(Integer, primary_key=True)
+    uuid = Column(String(255))
+    name = Column(String(255))
+    kind = Column(String(255))
+    memory = Column(String(255))
+    disk = Column(String(255))
+    nic_cnt = Column(Integer)
+    filesystem = Column(String(255))
+    os_type = Column(String(255))
+    distribution = Column(String(255))
+    kernel = Column(String(255))
+    ramdisk = Column(String(255))
+    packages = Column(String(255))
+    user_id = Column(Integer)
+    capabilities = Column(String(255))
+    repository = Column(String(255))
+    deploy_method = Column(String(255))
+    deploy_url = Column(String(255))
+    prefer_settings = Column(String(255))
+    node_type = Column(String(255))
+    url = Column(String(255))
+    description = Column(String(255))
+    deploy_cowdir = Column(String(255))
+    owner_id = Column(Integer)
+    group_id = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow())
+    datacenter_id = Column(Integer)
+    reserved = Column(Text)
+    ref_vmi_id = Column(Integer)
+    status = Column(String(255))
+
+
+# 虚拟机快照模型
+class Snapshot(Base):
+    __tablename__ = 'snapshots'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    uuid = Column(String(255))
+    name = Column(String(255))
+    virtual_cluster_instance_id = Column(Integer, ForeignKey('virtual_cluster_instances.id'))
+    #    vlab_instance_id = Column(Integer, ForeignKey('vlab_instances.id'))
+    description = Column(String(255))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    reserved = Column(Text)
+    vm_id = Column(Integer)
+    allow_clone = Column(Boolean)
+    depend_snapshot_id = Column(Integer)
+
+
+# 物理集群模型
+class PhysicalCluster(Base):
+    __tablename__ = 'physical_clusters'
+
+    id = Column(Integer, primary_key=True)
+    uuid = Column(String(255))
+    name = Column(String(255))
+    status = Column(String(255))
+    datacenter_id = Column(Integer)
+    host_cnt = Column(Integer)
+    vm_cnt = Column(Integer)
+    vmtemp_cnt = Column(Integer)
+    vcluster_cnt = Column(Integer)
+    vmc_uuids = Column(Text)
+    vm_uuids = Column(Text)
+    vcluster_uuids = Column(Text)
+    total_mem = Column(Integer)
+    total_cpu = Column(Integer)
+    total_disk = Column(Integer)
+    ha_enabled = Column(Integer)
+    drs_enabled = Column(Integer)
+    evc_state = Column(Integer)
+    config_id = Column(Integer)
+    owner_id = Column(Integer)
+    group_id = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    vmotion_num = Column(Integer)
+    storage_vmotion_num = Column(Integer)
+    cpu_keep_capacity = Column(Integer)
+    cluster_desc = Column(String(255))
+    feature = Column(Integer)
+
+
+class VirtualMachineContainerRuntime(Base):
+    __tablename__ = 'virtual_machine_container_runtimes'
+
+    id = Column(Integer, primary_key=True)
+    cluster_id = Column(Integer, ForeignKey('physical_clusters.id'))
+    cpu_usage = Column(String(255))
+
+
+# IP池模型
+class IpPool(Base):
+    __tablename__ = 'ip_pools'
+
+    id = Column(Integer, primary_key=True)
+    uuid = Column(String(255))
+    name = Column(String(255))
+    datacenter_id = Column(Integer)
+    netmask = Column(String(255))
+    gateway = Column(String(255))
+    ip_start = Column(String(255))
+    ip_end = Column(String(255))
+    ip_type = Column(String(255))
+    dns = Column(String(255))
+    current_ip = Column(String(255))
+    out_of_usage = Column(Integer)
+    reserved = Column(String(255))
+    vlan = Column(Integer)
+
+
+# IP模型
+class Ip(Base):
+    __tablename__ = 'ips'
+
+    id = Column(Integer, primary_key=True)
+    ip = Column(String(15))
+    uuid = Column(String(255))
+    ip_pool_id = Column(Integer, ForeignKey('ip_pools.id'))
+    status = Column(Integer)
+
+
+# 存储模型
+class Storage(Base):
+    __tablename__ = 'storages'
+
+    id = Column(Integer, primary_key=True)
+    uuid = Column(String(255))
+    total_storage = Column(String(255))
+    used_storage = Column(String(255))
+    storage_type = Column(String(255))
+    storage_path = Column(String(255))
+    ip_address = Column(String(255))
+    name = Column(String(255))
+    user_name = Column(String(255))
+    password = Column(String(255))
+    status = Column(String(255))
+    is_iso_storage = Column(Boolean, default=False)
+    origin_ip_address = Column(String(255))
+
+
+class Alarm(Base):
+    __tablename__ = 'alarms'
+
+    id = Column(Integer, primary_key=True)
+    datacenter_id = Column(Integer)
+    name = Column(String(255))
+    description = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    event_id = Column(Integer)
+    level = Column(String(255))
+    status = Column(String(255))
+    ref_obj_id = Column(Integer)
+    ref_obj_name = Column(String(255))
+    ref_obj_type = Column(Integer)
+    physical_cluster_id = Column(Integer)
+    virtual_machine_instance_id = Column(Integer)
+    virtual_machine_container_id = Column(Integer)
+
+
+class Ha(Base):
+    __tablename__ = 'has'
+
+    id = Column(Integer, primary_key=True)
+    cluster_id = Column(Integer)
+    vmc_ip = Column(String(255))
+    status = Column(Integer)
+    runtime = Column(String(255))
+    times = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+engine = create_engine('mysql://debian-sys-maint:jAYKfnrf0JjY4Zz8@localhost/jobs')
+Base.metadata.create_all(engine)
+#DBsession = sessionmaker(bind = engine)
+
